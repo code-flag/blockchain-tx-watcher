@@ -3,16 +3,18 @@
  * @description - This api handles account number for user
  */
 
- const express = require("express");
- const app = express();
- const Web3 = require('web3');
- const web3 = new Web3(Web3.givenProvider || "ws://localhost:8545");
- const cors = require("cors");
  require("dotenv/config");
  const PORT = process.env.PORT;
+//  const MAINNET = process.env.TEST_ENDPOINT
+ const express = require("express");
+ const app = express();
+//  const Web3 = require('web3');
+//  const web3 = new Web3(Web3.givenProvider || MAINNET);
+ const cors = require("cors");
+
  
- /**_________________________User router file directory__________________________ */
- 
+ /** _________________________User router file directory__________________________ */
+ const getTxnHash = require('./src/routes/get-txn-hash');
 
  
  /**_________________________________ Middleware ________________________________ */
@@ -51,10 +53,8 @@
  app.use(express.json());
  app.use(express.urlencoded({ extended: false }));
  
- 
- 
  /** _______________________________API ROUTES_________________________________ */
-
+ app.use("/api/middey-blockchain-deposit", getTxnHash);
  
  app.listen(PORT || 8400, () => {
    console.log("server started on port", PORT);
