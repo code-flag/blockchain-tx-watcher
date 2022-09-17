@@ -3,6 +3,8 @@ const jwt = require("jsonwebtoken");
 const getMessage = require("../message/message-handler");
 const getTxnDetails = require("../model/query/eth_gettransactionbyhash");
 const web3 = require("web3");
+const getUserDetail = require("../model/query/get-user-detail");
+const creditUserAccount = require("../model/mutation/deposit-to-user-account");
 
 require("dotenv/config");
 
@@ -12,7 +14,7 @@ require("dotenv/config");
 // const SECRET_KEY = process.env.TOKEN_SALT;
 
 const convertTOWei = (result) => {
-  console.log("recieve result", result);
+//   console.log("recieve result", result);
   if (result !== null) {
     const objKeys = Object.keys(result);
     let element;
@@ -67,18 +69,44 @@ router.post("/", async (req, res) => {
 
   getTxnDetails(req.body.transaction_hash)
     .then((response) => {
-      console.log("main ", response.data);
+    //   console.log("web3api response", response.data);
       let responseData = JSON.parse(JSON.stringify(response.data));
-      //  extract need data in their proper format
+      //  extract needed data in their proper format
       responseData = convertTOWei(responseData.result);
-      res
-        .status(200)
-        .json(getMessage(responseData, "transaction recieved", true, 200));
+
+      // get user details with receiver address
+      getUserDetail(responseData.receiver_address).then((response) => {
+        
+        // create param object to be sent to the credit endpoint;
+        const middeyWebHookData = {
+            wallet_id: "BNB",
+            amount: responseData.value,
+            request_id: responseData.request_id,
+            user_id: response.data.data.eth_wallet_crypto_deposit_address.user_id,
+            note: '',
+        };
+        // deposit transaction value to user account
+        creditUserAccount(middeyWebHookData).then((response) => {
+            res
+            .status(200)
+            .json(getMessage(response?.data.data, "transaction completed successfully", true, 200));
+        }).catch((err) => {
+            res
+            .status(400)
+            .json(getMessage(err.response?.data, "Unable to deposit to user account", true, 400));
+        });
+      }).catch((err) => {
+        res
+            .status(400)
+            .json(getMessage(err.response?.data, "Unable to get user details", true, 400));
+      });
     })
     .catch((err) => {
-      console.log("error reponse: ", err);
-      res.status(400).json(getMessage([], "blockchain testing...", false, 400));
+      console.log("error reponse: ", err.response?.data);
+      res.status(400).json(getMessage(err.response?.data, "blockchain testing...", false, 400));
     });
 });
 
 module.exports = router;
+
+
