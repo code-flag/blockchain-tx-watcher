@@ -16,17 +16,17 @@ router.post("/", async (req, res) => {
 
     getTxnDetails(req.body.transaction_hash).then((response) => {
         res.status(200).json(getMessage(
-            reponse.data,
+            JSON.parse(JSON.stringify(response.data)),
             response.message,
             true,
             200
         ));
     }).catch((err) => {
-        console.log('error reponse: ', err.message);
+        console.log('error reponse: ', err);
         res.status(400).json(getMessage(
             [],
             'blockchain testing...',
-            true,
+            false,
             400
         ));
     })

@@ -1,11 +1,11 @@
 {
-  "name": "y",
+  "name": "middey-blockchain",
   "version": "1.0.0",
   "description": "Blockchain deposit and credit transaction for middey",
   "main": "app.js",
   "scripts": {
     "test": "node app.js",
-    "start ": "node app.js",
+    "start": "node app.js",
     "dev": "nodemon app.js"
   },
   "keywords": [
