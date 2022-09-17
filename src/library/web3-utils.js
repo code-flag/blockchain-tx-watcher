@@ -6,13 +6,8 @@ Web3.utils.sha3("example") // '0x6fd43e7cffc31bb581d7421c8698e29aa2bd8e7186a394b
 
 // Convert any ether value into wei
  Web3.utils.toWei('1', 'ether') // 1000000000000000000
- Web3.utils.toWei('1', 'gwei') // 1000000000
-
-// Adds a padding on the left of a string, useful for adding paddings to HEX strings.
-Web3.utils.padLeft('0x3456ff', 20); // '0x000000000000003456ff'
-
-web3.utils.numberToHex(number)
-web3.utils.fromDecimal(number)
+Web3.utils.numberToHex(number)
+web3.utils.fromDecimal(number) 
 
 web3.utils.hexToNumber(hex)
 web3.utils.toDecimal(hex)
