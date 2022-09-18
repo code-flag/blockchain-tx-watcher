@@ -16,13 +16,13 @@
   "author": "Francis Olawumi Awe",
   "license": "ISC",
   "dependencies": {
-    "web3": "^1.8.0",
+    "@ethereumjs/tx": "^4.0.0",
     "axios": "^0.27.2",
     "cors": "^2.8.5",
     "dotenv": "^16.0.1",
     "express": "^4.18.1",
     "jsonwebtoken": "^8.5.1",
-    "nodemon": "^2.0.19"
+    "nodemon": "^2.0.19",
+    "web3": "^1.8.0"
   }
-  
 }

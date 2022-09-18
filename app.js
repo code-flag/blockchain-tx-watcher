@@ -14,7 +14,9 @@
 
  
  /** _________________________User router file directory__________________________ */
- const getTxnHash = require('./src/routes/get-txn-hash');
+ const depositTXN = require('./src/routes/deposit');
+ const withdrawTXN = require('./src/routes/withdrawBNB');
+ const withdrawToken = require('./src/routes/withdrawToken');
 
  
  /**_________________________________ Middleware ________________________________ */
@@ -54,7 +56,10 @@
  app.use(express.urlencoded({ extended: false }));
  
  /** _______________________________API ROUTES_________________________________ */
- app.use("/api/middey-blockchain-deposit", getTxnHash);
+ app.use("/api/blockchain-deposit", depositTXN);
+ app.use("/api/blockchain-withdrawer",  withdrawTXN);
+ app.use("/api/blockchain-withdrawToken",  withdrawToken); 
+
  
  app.listen(PORT || 8400, () => {
    console.log("server started on port", PORT);

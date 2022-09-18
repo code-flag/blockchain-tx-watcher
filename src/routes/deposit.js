@@ -74,7 +74,14 @@ router.post("/", async (req, res) => {
       //  extract needed data in their proper format
       responseData = convertTOWei(responseData.result);
 
-      // get user details with receiver address
+      // check the return data if not zero
+      if (responseData == 0) {
+        res
+            .status(200)
+            .json(getMessage([], "Can not find a transaction detail", true, 200));
+      }
+      else {
+        // get user details with receiver address
       getUserDetail(responseData.receiver_address).then((response) => {
         
         // create param object to be sent to the credit endpoint;
@@ -100,6 +107,7 @@ router.post("/", async (req, res) => {
             .status(400)
             .json(getMessage(err.response?.data, "Unable to get user details", true, 400));
       });
+      }
     })
     .catch((err) => {
       console.log("error reponse: ", err.response?.data);
