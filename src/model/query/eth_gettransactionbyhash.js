@@ -1,6 +1,6 @@
 const axios = require('axios');
 require("dotenv/config");
-const ENDPOINT = process.env.WEB3API_ENDPOINT + process.env.WEB3API_KEY;
+const ENDPOINT = process.env.WEB3API_ENDPOINT_TESTNET + process.env.WEB3API_KEY;
 
 /** this is used to recieve user data */
  const getTxnDetails = async (txnHash) => {
