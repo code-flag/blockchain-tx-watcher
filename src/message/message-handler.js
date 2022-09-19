@@ -11,7 +11,7 @@ const getMessage = (retData, message, mtype, status_code = 200) => {
     let msg;
     if (mtype === true) {
          msg = {
-            status: "true",
+            status: true,
             status_code: status_code,
             data: retData ,
             message: message
@@ -21,7 +21,7 @@ const getMessage = (retData, message, mtype, status_code = 200) => {
     }
     else if(mtype === false) {
         msg = {
-            status: "failed",
+            status: false,
             status_code: 400,
             message: message,
             data: retData
