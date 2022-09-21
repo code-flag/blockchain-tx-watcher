@@ -1,7 +1,6 @@
 const axios = require('axios');
 
 require("dotenv/config");
-const ENDPOINT = process.env.DEPOSIT_ENPOINT; 
 const TOKEN = process.env.ZUGAVALIZE_CREDIT_TOKEN;
 
  /**
@@ -9,9 +8,9 @@ const TOKEN = process.env.ZUGAVALIZE_CREDIT_TOKEN;
   * @param {object} incomingData 
   * @returns promise
   */
- const creditUserAccount = async (incomingData) => {
-    console.log('endpoint', ENDPOINT, 'INCOMING DATA', incomingData);
-    return axios.post(`${ENDPOINT}`, incomingData, {
+ const creditUserAccount = async (endpoint, incomingData) => {
+    console.log('endpoint', endpoint, 'INCOMING DATA', incomingData);
+    return axios.post(endpoint, incomingData, {
         headers: {
             "Authorization": `Bearer ${TOKEN}`
         }

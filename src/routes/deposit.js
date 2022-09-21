@@ -5,16 +5,35 @@ const getTxnDetails = require("../model/query/eth_gettransactionbyhash");
 const web3 = require("web3");
 const getUserDetail = require("../model/query/get-user-detail");
 const creditUserAccount = require("../model/mutation/deposit-to-user-account");
+const getAddressDetails = require("../model/query/getAddressDetails");
+const creditCoinRimpUserAccount = require("../model/mutation/coinrimp-user-deposit");
+const getSZCB = require("../model/query/get-SZCB-Txn-hash-detail");
 
 require("dotenv/config");
 
 const router = express.Router();
 
-require("dotenv/config");
-// const SECRET_KEY = process.env.TOKEN_SALT;
+/**
+ * This method determine what type of coin is sent
+ * @param {string} contract - contract address to from transaction hash
+ * @returns string
+ */
+const getCoinType = (contract) => {
+  if (contract === process.env.USDT) {
+    return "USDT";
+  } else if (contract === process.env.SZCB) {
+    return "SZCB";
+  } else {
+    return "BNB";
+  }
+};
 
+/**
+ * This method extract transaction hash details into needed object
+ * @param {object} result -
+ * @returns object
+ */
 const convertTOWei = (result) => {
-//   console.log("recieve result", result);
   if (result !== null) {
     const objKeys = Object.keys(result);
     let element;
@@ -64,57 +83,237 @@ const convertTOWei = (result) => {
   }
 };
 
-router.post("/", async (req, res) => {
-  console.log("request hash", req.body.transaction_hash);
+/**
+ *
+ * @param {string} receiverAdd - reciever address to check if user exist
+ * @param {string} coinType - type of coin to deposit
+ * @param {any} value - amount to deposit value
+ * @param {string} requestId - request id
+ */
+const getAndCreditUser = (res, receiverAdd, coinType, value, requestId, coinrimpUserId, creditEnpoint) => {
+  // get user details with receiver address
+  getUserDetail(receiverAdd)
+    .then(async (response) => {
+      // create param object to be sent to the credit endpoint;
+      const zugavalizeData = {
+        wallet_id: coinType,
+        amount: value,
+        request_id: requestId,
+        user_id: response.data.data.eth_wallet_deposit_address.user_id,
+        note: "",
+      };
 
-  getTxnDetails(req.body.transaction_hash)
-    .then((response) => {
-    //   console.log("web3api response", response.data);
-      let responseData = JSON.parse(JSON.stringify(response.data));
-      //  extract needed data in their proper format
-      responseData = convertTOWei(responseData.result);
+      const coinrimpData = {
+        wallet_id: coinType,
+        amount: value,
+        request_id: requestId,
+        user_id: coinrimpUserId,
+        note: "",
+      };
 
-      // check the return data if not zero
-      if (responseData == 0) {
-        res
-            .status(200)
-            .json(getMessage([], "Can not find a transaction detail", true, 200));
-      }
-      else {
-        // get user details with receiver address
-      getUserDetail(responseData.receiver_address).then((response) => {
-        
-        // create param object to be sent to the credit endpoint;
-        const middeyWebHookData = {
-            wallet_id: "BNB",
-            amount: responseData.value,
-            request_id: responseData.request_id,
-            user_id: response.data.data.eth_wallet_crypto_deposit_address.user_id,
-            note: '',
-        };
-        // deposit transaction value to user account
-        creditUserAccount(middeyWebHookData).then((response) => {
-            res
-            .status(200)
-            .json(getMessage(response?.data.data, "transaction completed successfully", true, 200));
-        }).catch((err) => {
-            res
-            .status(400)
-            .json(getMessage(err.response?.data, "Unable to deposit to user account", true, 400));
-        });
-      }).catch((err) => {
-        res
-            .status(400)
-            .json(getMessage(err.response?.data, "Unable to get user details", true, 400));
-      });
-      }
+      //deposit transaction to coin rimp account
+      const creditCoinrimpResponse = await creditCoinRimpUserAccount(
+        coinrimpData
+      );
+      console.log(
+        "credit coinrimp response",
+        creditCoinrimpResponse.data?.data
+      );
+      // deposit transaction value to user account
+      const creditUserAcctResponse = await creditUserAccount(
+        creditEnpoint,
+        zugavalizeData
+      );
+      console.log(
+        "credit user acct response",
+        creditUserAcctResponse.data?.data
+      );
+
+      res
+        .status(200)
+        .json(
+          getMessage(
+            creditUserAcctResponse.data?.data,
+            "transaction completed successfully",
+            true,
+            200
+          )
+        );
     })
     .catch((err) => {
-      console.log("error reponse: ", err.response?.data);
-      res.status(400).json(getMessage(err.response?.data, "blockchain testing...", false, 400));
+      res
+        .status(400)
+        .json(
+          getMessage(
+            err.response?.data,
+            err.message,
+            true,
+            400
+          )
+        );
     });
+};
+
+router.post("/", async (req, res) => {
+  console.log("request hash", req.body.transaction_hash);
+  // cehck if all the required parameters passed
+  if (
+    req.body?.transaction_hash === "" ||
+    req.body?.transaction_hash === undefined ||
+    req.body?.transaction_hash === null ||
+    req.body?.to_address === "" ||
+    req.body?.to_address === undefined ||
+    req.body?.to_address === null
+  ) {
+    console.log("Incomplete or invalide argument provided");
+    res
+      .status(400)
+      .json(
+        getMessage([], "Incomplete or invalide argument provided", false, 400)
+      );
+  } else {
+    try {
+      // retrieve user details from the address
+      const addressDetail = await getAddressDetails(req.body.to_address);
+      console.log("addressDetail response", addressDetail.data.data);
+
+      // check if user has data with us if not return error user does not exist
+      if (addressDetail.data.data.extra_data === false) {
+        res
+          .status(400)
+          .json(getMessage([], "invalid user address", false, 400));
+      } else {
+        // save webhook endpoint for crediting user account later
+        const creditEnpoint =
+          addressDetail.data.data?.extra_data?.webhook_url_deposit;
+        // save coinrimp user id for coinrimp deposit later
+        const coinrimpUserId = addressDetail.data.data?.user_allocated_to;
+        //GET transaction hash details
+        getTxnDetails(req.body.transaction_hash)
+          .then( async (response) => {
+            console.log("web3api response", response.data.result.to);
+
+            const contractAddress = response.data.result.to;
+            const coinType = getCoinType(contractAddress);
+            console.log('coin type', coinType);
+
+            if (coinType == "USDT") {
+              console.log('response.data', response.data);
+              // let responseData = JSON.parse(JSON.stringify(response.data));
+              //  extract needed data in their proper format
+              //  extract needed data in their proper format
+              let responseData = response.data;
+              responseData = convertTOWei(responseData.result);
+
+              // check the return data if not zero
+              if (responseData == 0) {
+                res.status(200).json(
+                    getMessage( [], "Can not find a transaction detail", true, 200)
+                  );
+              } else {
+                const response = await getSZCB(req.body.to_address, responseData.block_number);
+                // console.log('address', response.data.result[0]);
+                let tokenDecimal = parseInt(response.data.result[0].tokenDecimal);
+                let dec_point = Math.pow(10, tokenDecimal);
+                let value_of_token_in_wei = parseFloat(response.data.result[0].value) / dec_point ;
+                console.log('amount', value_of_token_in_wei);
+
+                // get user details with receiver address
+                getAndCreditUser(
+                  res,
+                  responseData.receiver_address,
+                  coinType,
+                  value_of_token_in_wei,
+                  responseData.request_id,
+                  coinrimpUserId,
+                  creditEnpoint
+                );
+              }
+            } 
+            // SZCB coin
+            else if (coinType == "SZCB") {
+            
+              //  extract needed data in their proper format
+              let responseData = response.data;
+              responseData = convertTOWei(responseData.result);
+
+              // check the return data if not zero
+              if (responseData == 0) {
+                res.status(200).json(
+                    getMessage( [], "Can not find a transaction detail", true, 200)
+                  );
+              } else {
+                const response = await getSZCB(req.body.to_address, responseData.block_number);
+                // console.log('address', response.data.result[0]);
+                let tokenDecimal = parseInt(response.data.result[0].tokenDecimal);
+                let dec_point = Math.pow(10, tokenDecimal);
+                let value_of_token_in_wei = parseFloat(response.data.result[0].value) / dec_point ;
+                console.log('amount', value_of_token_in_wei);
+
+                // get user details with receiver address
+                getAndCreditUser(
+                  res,
+                  responseData.receiver_address,
+                  coinType,
+                  value_of_token_in_wei,
+                  responseData.request_id,
+                  coinrimpUserId,
+                  creditEnpoint
+                );
+              }
+            } else {
+              // let responseData = JSON.parse(JSON.stringify(response.data));
+              //  extract needed data in their proper format
+              let responseData = response.data;
+              responseData = convertTOWei(responseData.result);
+
+              // check the return data if not zero
+              if (responseData == 0) {
+                res
+                  .status(200)
+                  .json(
+                    getMessage(
+                      [],
+                      "Can not find a transaction detail",
+                      true,
+                      200
+                    )
+                  );
+              } else {
+                // get user details with receiver address
+                getAndCreditUser(
+                  res,
+                  responseData.receiver_address,
+                  coinType,
+                  responseData.value,
+                  responseData.request_id,
+                  coinrimpUserId,
+                  creditEnpoint
+                );
+              }
+            }
+          })
+          .catch((err) => {
+            console.log("error reponse: ", err.response?.data);
+            res
+              .status(400)
+              .json(
+                getMessage(
+                  err.response?.data,
+                  err.message,
+                  false,
+                  400
+                )
+              );
+          });
+      }
+    } catch (error) {
+      console.log("error response => ", error.getMessage);
+      res
+        .status(400)
+        .json(getMessage(error?.response?.data, error.message, false, 400));
+    }
+  }
 });
 
 module.exports = router;
-
-
