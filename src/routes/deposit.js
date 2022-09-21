@@ -15,7 +15,8 @@ const router = express.Router();
 
 /**
  * This method determine what type of coin is sent
- * @param {string} contract - contract address to from transaction hash
+ * @param {string} contract - contract is the 'to' field return from transaction hash
+ * - The contract is constant for USDT and SZCB only while varies for BNB
  * @returns string
  */
 const getCoinType = (contract) => {
@@ -110,8 +111,10 @@ const getAndCreditUser = (res, receiverAdd, coinType, value, requestId, coinrimp
         user_id: coinrimpUserId,
         note: "",
       };
-
-      //deposit transaction to coin rimp account
+      let coinrimpRes;
+      let zugavalizeRes;
+      try {
+        //deposit transaction to coin rimp account
       const creditCoinrimpResponse = await creditCoinRimpUserAccount(
         coinrimpData
       );
@@ -119,7 +122,12 @@ const getAndCreditUser = (res, receiverAdd, coinType, value, requestId, coinrimp
         "credit coinrimp response",
         creditCoinrimpResponse.data?.data
       );
-      // deposit transaction value to user account
+      coinrimpRes = creditCoinrimpResponse.data?.data;
+      } catch (error) {
+        coinrimpRes = error.message;
+      }
+      try {
+        // deposit transaction value to user account
       const creditUserAcctResponse = await creditUserAccount(
         creditEnpoint,
         zugavalizeData
@@ -128,12 +136,19 @@ const getAndCreditUser = (res, receiverAdd, coinType, value, requestId, coinrimp
         "credit user acct response",
         creditUserAcctResponse.data?.data
       );
+      zugavalizeRes = creditUserAcctResponse.data?.data;
+      } catch (error) {
+        zugavalizeRes = error.message;
+      }
 
       res
         .status(200)
         .json(
           getMessage(
-            creditUserAcctResponse.data?.data,
+            {
+              cr_data: coinrimpRes,
+              us_data: zugavalizeRes
+            },
             "transaction completed successfully",
             true,
             200
