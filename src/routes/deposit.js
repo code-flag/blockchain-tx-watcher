@@ -19,9 +19,9 @@ const router = express.Router();
  * @returns string
  */
 const getCoinType = (contract) => {
-  if (contract === process.env.USDT) {
+  if (contract == process.env.USDT) {
     return "USDT";
-  } else if (contract === process.env.SZCB) {
+  } else if (contract == process.env.SZCB) {
     return "SZCB";
   } else {
     return "BNB";
