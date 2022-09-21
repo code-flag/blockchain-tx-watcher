@@ -221,7 +221,7 @@ router.post("/", async (req, res) => {
                 // get user details with receiver address
                 getAndCreditUser(
                   res,
-                  responseData.receiver_address,
+                  req.body.to_address,
                   coinType,
                   value_of_token_in_wei,
                   responseData.request_id,
@@ -253,7 +253,7 @@ router.post("/", async (req, res) => {
                 // get user details with receiver address
                 getAndCreditUser(
                   res,
-                  responseData.receiver_address,
+                  req.body.to_address,
                   coinType,
                   value_of_token_in_wei,
                   responseData.request_id,
@@ -283,7 +283,7 @@ router.post("/", async (req, res) => {
                 // get user details with receiver address
                 getAndCreditUser(
                   res,
-                  responseData.receiver_address,
+                  req.body.to_address,
                   coinType,
                   responseData.value,
                   responseData.request_id,
