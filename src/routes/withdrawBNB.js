@@ -60,8 +60,8 @@ router.post("/", async (req, res) => {
         zugavalizeRes = creditUserAcctResponse.data?.data;
         res.status(400).json(getMessage(zugavalizeRes, 'Transaction failed. Money reversed.', false, 400));
         } catch (error) {
-          zugavalizeRes = error.message;
-          res.status(400).json(getMessage(transactionResponse, 'Transaction failed. '+ error.message, false, 400));
+          zugavalizeRes = error.response.data.message;
+          res.status(400).json(getMessage(transactionResponse, 'Transaction failed. '+ zugavalizeRes, false, 400));
         }
       }
       
