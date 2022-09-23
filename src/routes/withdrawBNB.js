@@ -1,7 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const getMessage = require("../message/message-handler");
-const submitTXN = require("../model/transactions/processTransaction");
+const creditUserAccount = require("../model/mutation/deposit-to-user-account");
+const {submitTXN}= require("../model/transactions/processTransaction");
 
 require("dotenv/config");
 
@@ -15,7 +16,16 @@ router.post("/", async (req, res) => {
     typeof req.body?.address_to == "number" ||
     req.body?.amount == undefined ||
     req.body?.amount == null ||
-    req.body?.amount == '' 
+    req.body?.amount == '' ||
+    req.body?.wallet_id == undefined ||
+    req.body?.wallet_id == null ||
+    req.body?.wallet_id == '' ||
+    req.body?.request_id == undefined ||
+    req.body?.request_id == null ||
+    req.body?.request_id == '' ||
+    req.body?.user_id == undefined ||
+    req.body?.user_id == null ||
+    req.body?.user_id == '' 
     ) {
     res.status(400).json(
       getMessage([], 'Invalid parameter or incompleted data', false, 400 )
@@ -25,9 +35,38 @@ router.post("/", async (req, res) => {
     try {
       const transactionResponse = await submitTXN(req.body?.address_to, req.body?.amount, PRIVATE_KEY);
       console.log('transaction response', transactionResponse);
-      res.status(200).json(getMessage([transactionResponse], 'Transaction completed', true, 200));
+      if (transactionResponse.status === true) {
+        res.status(200).json(getMessage([transactionResponse], 'Transaction completed', true, 200));
+      }
+      else {
+        const zugavalizeData = {
+          wallet_id: req.body.wallet_id,
+          amount: transactionResponse.amount,
+          request_id: req.body.request_id,
+          user_id: req.body.user_id,
+          note: "user transaction failed. Money reversed",
+        };
+        const creditEnpoint = "https://backend.zugavalize.io/wp-json/rimplenet/v1/credits";
+        try {
+          // deposit transaction value to user account
+        const creditUserAcctResponse = await creditUserAccount(
+          creditEnpoint,
+          zugavalizeData
+        );
+        console.log(
+          "credit user acct response",
+          creditUserAcctResponse.data?.data
+        );
+        zugavalizeRes = creditUserAcctResponse.data?.data;
+        res.status(400).json(getMessage(zugavalizeRes, 'Transaction failed. Money reversed.', false, 400));
+        } catch (error) {
+          zugavalizeRes = error.message;
+          res.status(400).json(getMessage(transactionResponse, 'Transaction failed. '+ error.message, false, 400));
+        }
+      }
+      
     } catch (error) {
-      console.log(error.message);
+      console.log("bnb error msg", error.message);
       res.status(400).json(getMessage([], error?.message, false, 400));
     }
 
