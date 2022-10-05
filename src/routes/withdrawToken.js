@@ -27,7 +27,7 @@ const web3 = new Web3(TESTNET);
   }
   else if (walletType.toLowerCase() == "szcb") {
     return process.env.SZCB;
-    return "SZCB"
+    // return "SZCB"
   }
   else {return 0};
 };
