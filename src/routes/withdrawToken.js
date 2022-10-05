@@ -22,10 +22,12 @@ const web3 = new Web3(TESTNET);
  */
  const getCoinType = (walletType) => {
   if (walletType.toLowerCase() == "usdt") {
-    return process.env.USDT;
+    // return process.env.USDT;
+    return "USDT";
   }
   else if (walletType.toLowerCase() == "szcb") {
-    return process.env.SZCB;
+    // return process.env.SZCB;
+    return "SZCB"
   }
   else {return 0};
 };
