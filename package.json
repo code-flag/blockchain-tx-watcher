@@ -5,9 +5,9 @@
   "main": "app.js",
   "scripts": {
     "test": "node app.js",
-    "start ": "node ./build/app.js",
-    "dev": "nodemon ./build/app.js",
-    "nodemon": "nodemon ./build/index.js --watch",
+    "start": "node ./build/app.js",
+    "dev": "node ./build/app.js",
+    "nodemon": "nodemon ./build/app.js --watch",
     "build": "npx tsc",
     "tsc": "npx tsc --watch"
   },

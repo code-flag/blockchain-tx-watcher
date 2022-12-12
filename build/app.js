@@ -23,7 +23,7 @@ const providerConnection = (_a = nodeProvider.createClient()) === null || _a ===
 const { web3http, web3ws } = providerConnection;
 const txWatcher = new transaction_watcher_1.TxWatcher(web3http, web3ws, txAddress);
 //  txWatcher.watch('polling', 7000);
-txWatcher.watch('subscription', 60000);
+txWatcher.watch('subscription', 18000);
 // Body Parser middleware
 app.use(express_1.default.json());
 app.use(express_1.default.urlencoded({ extended: false }));

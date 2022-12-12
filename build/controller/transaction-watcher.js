@@ -107,6 +107,7 @@ class TxWatcher {
                     if (tx != null) {
                         if (this.account.includes(tx.to)) {
                             console.log({ from: tx.from, to: tx.to, value: this.web3.utils.fromWei(tx.value, 'ether'), timestamp: new Date() });
+                            tx.value = this.web3.utils.fromWei(tx.value, 'ether');
                             (0, webhook_sample_1.sendReqToWebhookSite)({ from: 'middey-blockchain', data: tx });
                         }
                     }
