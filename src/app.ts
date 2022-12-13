@@ -21,7 +21,7 @@ dotEnv.config();
  const {web3http, web3ws} = providerConnection;
  const txWatcher = new TxWatcher(web3http, web3ws, txAddress);
 //  txWatcher.watch('polling', 7000);
- txWatcher.watch('subscription', 18000);
+ txWatcher.watch('subscription', 15000);
  
  // Body Parser middleware
  app.use(express.json());
