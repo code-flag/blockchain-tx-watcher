@@ -23,7 +23,8 @@ const ENDPOINT = process.env.WEBHOOK_API;
 * @returns promise
 */
 const sendReqToWebhookSite = (incomingData) => __awaiter(void 0, void 0, void 0, function* () {
-    return axios_1.default.post(`${ENDPOINT}`, incomingData, {
+    console.log('sending Data', incomingData);
+    return axios_1.default.post(`${incomingData.addressDetail.webhook_url}`, incomingData, {
         headers: {
             "Authorization": `Bearer`
         }

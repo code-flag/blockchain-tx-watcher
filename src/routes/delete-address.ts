@@ -1,28 +1,23 @@
-// const express = require('express');
-// const jwt = require('jsonwebtoken');
-// const { Employee } = require('../../database/schemas/schema');
-// const getMessage = require('../../message/app-messages');
-// const router = express.Router();
-// require('dotenv/config');
-// const key = process.env.API_SECRET_KEY;
 
+import express from "express";
+import jwt from "jsonwebtoken";
+import dotEnv from "dotenv";
+import { TransactionDb } from "../model/database/schemas/schema";
+import { getMessage } from "../message/message-handler";
+dotEnv.config();
+export const router = express.Router();
 
-// router.delete('/:userId', async (req, res) => {
-//     jwt.verify(req.token, key, (err, authData) => {
-//         if(err){
-//             res.sendStatus(403);
-//         }
-//         else {
-//                 Employee.findOneAndRemove({'_id': req.params.userId}).then((data) => {
-//                     res.status(200).json(
-//                         getMessage(data, "Employee successfully deleted", true)
-//                       );
-//                   })
-//                   .catch((err) => {
-//                 res.status(200).json(getMessage(err, 'Something went wrong', false));
-//             });
-//         }
-//     })
-// });
+router.delete('/:address', async (req, res) => {
+                TransactionDb.findOneAndRemove({'address': req.params.address}).then((data: any) => {
+                    console.log('user address data deleted successfully', data);
+                    
+                    res.status(200).json(
+                        getMessage(data, "Address data successfully deleted", true)
+                      );
+                  })
+                  .catch((err: any) => {
+                res.status(400).json(getMessage(err, 'Something went wrong', false, 400));
+            });
+});
 
 // module.exports = router;

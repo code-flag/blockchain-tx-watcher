@@ -21,8 +21,11 @@ class TxWatcher {
      * @param web3 - web3 http instance
      * @param web3ws - web3 subscription instance
      * @param addresses - Array of addresses
+     * @param watchType - watch method to use
+ *  - subscription - for subscription method
+ *  - polling - for polling method
      */
-    constructor(web3, web3ws, addresses) {
+    constructor(web3, web3ws, addresses, addressData, watchType) {
         this.checkLastBlock = () => __awaiter(this, void 0, void 0, function* () {
             let block = yield this.web3.eth.getBlock('latest');
             let blockNumber = block.number;
@@ -38,24 +41,11 @@ class TxWatcher {
                             address: tx.from, value: this.web3.utils.fromWei(tx.value, 'ether'),
                             timestamp: new Date()
                         });
-                        (0, webhook_sample_1.sendReqToWebhookSite)({ from: 'middey-blockchain', data: tx });
-                    }
-                }
-            }
-        });
-        this.checkBlocks = (start, end) => __awaiter(this, void 0, void 0, function* () {
-            for (let i = start; i < end; i++) {
-                let block = yield this.web3.eth.getBlock(i);
-                console.log(`[*] Searching block ${i}`);
-                if (block && block.transactions) {
-                    for (let ts of block.transactions) {
-                        let tx = yield this.web3.eth.getTransaction(ts);
-                        console.log('address found', tx.to.toLowerCase());
-                        if (tx && this.account.includes(tx.to)) {
-                            console.log('address: ', tx.to.toLowerCase());
-                            console.log(`[+] Transaction found on block ${block.number}`);
-                            console.log({ address: tx.from, value: this.web3.utils.fromWei(tx.value, 'ether'), timestamp: new Date() });
-                        }
+                        (0, webhook_sample_1.sendReqToWebhookSite)({
+                            from: 'middey-blockchain',
+                            addressDetail: this.addressDetail[tx.to],
+                            data: tx
+                        });
                     }
                 }
             }
@@ -63,26 +53,51 @@ class TxWatcher {
         this.web3 = web3;
         this.web3ws = web3ws;
         this.account = addresses;
+        this.watchType = watchType;
+        this.addressDetail = addressData;
     }
     /**
      * This method watch the transaction done on any address
-     * @param type - watching method pollin gor subscription
-     * @param watchTimer - watch time interval
+     * @param watchTimer - watching time interval
      * @param subTopic - subscription type or topic for web socket subscription type of watching
      */
-    watch(type = 'polling', watchTimer, subTopic = "pendingTransactions") {
-        if (type.toLowerCase() === 'polling') {
-            setInterval(() => {
-                this.checkLastBlock();
-            }, watchTimer);
-        }
-        if (type.toLowerCase() === 'subscription') {
-            if (subTopic) {
-                this.subscribe(subTopic);
-                this.watchTransactions(watchTimer);
+    watch(watchTimer, subTopic = "pendingTransactions") {
+        try {
+            if (this.watchType.toLowerCase() === 'polling') {
+                if (this.watcherId)
+                    clearInterval(this.watcherId);
+                this.watcherId = setInterval(() => {
+                    this.checkLastBlock();
+                }, watchTimer);
+            }
+            if (this.watchType.toLowerCase() === 'subscription') {
+                if (subTopic) {
+                    this.subscribe(subTopic);
+                    this.watchTransactions(watchTimer);
+                }
             }
         }
+        catch (error) {
+            console.log("watcher error", error);
+        }
     }
+    // public checkBlocks = async (start: number, end: number) => {
+    //     for (let i = start; i < end; i++) {
+    //         let block = await this.web3.eth.getBlock(i)
+    //         console.log(`[*] Searching block ${i}`);
+    //         if (block && block.transactions) {
+    //             for (let ts of block.transactions) {
+    //                 let tx = await this.web3.eth.getTransaction(ts);
+    //                 console.log('address found', tx.to.toLowerCase());
+    //                 if (tx && this.account.includes(tx.to)) {
+    //                     console.log('address: ', tx.to.toLowerCase());
+    //                     console.log(`[+] Transaction found on block ${block.number}`);
+    //                     console.log({ address: tx.from, value: this.web3.utils.fromWei(tx.value, 'ether'), timestamp: new Date() });
+    //                 }
+    //             }
+    //         }
+    //     }
+    // }
     /**
      * This method subscribe to transaction event. It gets update anytime there is update
      * @param topic - transaction subscription type
@@ -108,12 +123,16 @@ class TxWatcher {
                         if (this.account.includes(tx.to)) {
                             console.log({ from: tx.from, to: tx.to, value: this.web3.utils.fromWei(tx.value, 'ether'), timestamp: new Date() });
                             tx.value = this.web3.utils.fromWei(tx.value, 'ether');
-                            (0, webhook_sample_1.sendReqToWebhookSite)({ from: 'middey-blockchain', data: tx });
+                            (0, webhook_sample_1.sendReqToWebhookSite)({
+                                from: 'middey-blockchain',
+                                addressDetail: this.addressDetail[tx.to],
+                                data: tx
+                            });
                         }
                     }
                 }
                 catch (error) {
-                    console.error(error);
+                    console.error("subscription error", error === null || error === void 0 ? void 0 : error.message);
                 }
             }), checkTimeInterval);
         });

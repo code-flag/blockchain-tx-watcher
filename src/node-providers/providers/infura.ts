@@ -7,7 +7,7 @@ export class Infura implements IProvider {
     providerName = 'Infura';
     web3ws: any;
     web3http: any;
-    httpUrl: string = "https://goerli.infura.io/v3/7125f893eef34752b407247f92725834";
+    httpUrl: string = "https://goerli.infura.io/v3/" + INFURA_API_KEY;
     wsUrl: string = "wss://goerli.infura.io/ws/v3/" + INFURA_API_KEY;
 
     constructor(web3: any) {

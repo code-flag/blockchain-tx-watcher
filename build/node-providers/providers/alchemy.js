@@ -3,11 +3,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ALCHEMY = void 0;
+exports.Alchemy = void 0;
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
 const ALCHEMY_API_KEY = process.env.ALCHEMY_API_KEY;
-class ALCHEMY {
+class Alchemy {
     constructor(web3) {
         this.providerName = 'ALCHEMY';
         this.httpUrl = "http://eth-mainnet.g.alchemy.com/v2/" + ALCHEMY_API_KEY;
@@ -26,7 +26,7 @@ class ALCHEMY {
         };
     }
 }
-exports.ALCHEMY = ALCHEMY;
+exports.Alchemy = Alchemy;
 // # Get the latest block
 // $ curl https://eth-mainnet.g.alchemy.com/v2/XWJmf8dxIfaF71VS0e5Uz5hiP_k_qNNw -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":0}'
 // # Get all outbound transfers for a provided address

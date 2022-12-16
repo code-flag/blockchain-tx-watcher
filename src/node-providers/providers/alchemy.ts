@@ -3,7 +3,7 @@ import dotEnv from "dotenv";
 dotEnv.config();
 const ALCHEMY_API_KEY = process.env.ALCHEMY_API_KEY;
 
-export class ALCHEMY implements IProvider {
+export class Alchemy implements IProvider {
     providerName = 'ALCHEMY';
     web3ws: any;
     web3http: any;

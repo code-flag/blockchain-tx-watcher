@@ -1,4 +1,6 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.DBConnection = void 0;
 const mongoose = require("mongoose");
 require('dotenv/config');
 const url = process.env.DB_CONNECTION_URL;
@@ -15,4 +17,4 @@ const DBConnection = () => {
         }
     });
 };
-module.exports = DBConnection;
+exports.DBConnection = DBConnection;

@@ -3,7 +3,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.TransactionDb = void 0;
 const mongoose = require("mongoose");
 /** ___________________________Transaction address to watch________________________ */
-const BlockchainAddress = mongoose.Schema({
-    address: { type: Array, required: true },
+const AddressData = mongoose.Schema({
+    address: { type: String, required: true },
+    allocation_id: { type: Number, required: true },
+    webhook_url: { type: String, required: true },
+    meta: { type: Object },
 });
-exports.TransactionDb = mongoose.model("blockchain_address", BlockchainAddress);
+exports.TransactionDb = mongoose.model("address_data", AddressData);

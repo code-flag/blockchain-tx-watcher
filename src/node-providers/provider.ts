@@ -1,3 +1,4 @@
+import { Alchemy } from "./providers/alchemy";
 import { Infura } from "./providers/infura";
 
 export class NodeFactory {
@@ -25,10 +26,10 @@ export class NodeFactory {
             }
             else {
                 if (this.clientName.toLowerCase() === "infura") {
-                    return new Infura(this.web3)
+                    return new Infura(this.web3);
                 }
                 else if (this.clientName.toLowerCase() === "alchemy") {
-                    
+                    return new Alchemy(this.web3);
                 }
                 else if (this.clientName.toLowerCase() === "ankar") {
                     

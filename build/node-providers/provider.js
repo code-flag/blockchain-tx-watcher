@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.NodeFactory = void 0;
+const alchemy_1 = require("./providers/alchemy");
 const infura_1 = require("./providers/infura");
 class NodeFactory {
     /**
@@ -26,6 +27,7 @@ class NodeFactory {
                     return new infura_1.Infura(this.web3);
                 }
                 else if (this.clientName.toLowerCase() === "alchemy") {
+                    return new alchemy_1.Alchemy(this.web3);
                 }
                 else if (this.clientName.toLowerCase() === "ankar") {
                 }

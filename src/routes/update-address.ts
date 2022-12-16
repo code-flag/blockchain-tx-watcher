@@ -1,40 +1,30 @@
-// const express = require("express");
-// const jwt = require("jsonwebtoken");
-// const { Employee } = require("../../database/schemas/schema");
-// const getMessage = require("../../message/app-messages");
-// const router = express.Router();
-// require("dotenv/config");
-// const key = process.env.API_SECRET_KEY;
 
-// router.put("/:userId", async (req, res) => {
-//   jwt.verify(req.token, key, (err, authData) => {
-//     if (err) {
-//       res.sendStatus(403);
-//     } else {
-//       let check = verifyEmployeePayload(req.body);
-//       if (check.status) {
-//         Employee.findOneAndUpdate({ _id: req.params.userId }, req.body, {
-//           new: true,
-//         })
-//           .then((data) => {
-//             res
-//               .status(200)
-//               .json(
-//                 getMessage(data, "Employee data successfully updated", true)
-//               );
-//           })
-//           .catch((err) => {
-//             res
-//               .status(200)
-//               .json(getMessage(err, "Something went wrong", false));
-//           });
-//       } else {
-//         res
-//           .status(400)
-//           .json(getMessage(check, "Invalid Username and password", false));
-//       }
-//     }
-//   });
-// });
+import express from "express";
+import jwt from "jsonwebtoken";
+import dotEnv from "dotenv";
+import { TransactionDb } from "../model/database/schemas/schema";
+import { getMessage } from "../message/message-handler";
+dotEnv.config();
+export const router = express.Router();
+
+router.put("/:address", async (req, res) => {
+
+        TransactionDb.findOneAndUpdate({ 'address': req.params.address }, req.body, {
+          new: true,
+        })
+          .then((data: any) => {
+            console.log('adddress data successfully update >> ', data);
+              res.status(200)
+              .json(
+                getMessage(data, "Address data data successfully updated", true)
+              );
+          })
+          .catch((err: any) => {
+            res
+              .status(400)
+              .json(getMessage(err, "Something went wrong", false, 400));
+          });
+    
+});
 
 // module.exports = router;

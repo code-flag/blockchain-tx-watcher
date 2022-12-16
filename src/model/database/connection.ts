@@ -3,7 +3,7 @@ require('dotenv/config');
 
 const url: string | undefined = process.env.DB_CONNECTION_URL;
 
-const DBConnection = () => {
+export const DBConnection = () => {
   mongoose.connect(
     url,
     {
@@ -20,4 +20,3 @@ const DBConnection = () => {
   );
 };
 
-module.exports = DBConnection;
