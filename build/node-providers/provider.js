@@ -8,10 +8,15 @@ class NodeFactory {
      * @constructor
      * @param web3 - web3 instance
      * @param clientName - node provider name
+     * @param netType - type of network
+     * - mainnet
+     * - testnet
      */
-    constructor(web3, clientName) {
+    constructor(web3, clientName, netType) {
+        this.networkType = 'testnet';
         this.web3 = web3;
         this.clientName = clientName;
+        this.networkType = netType;
     }
     createClient() {
         if (!this.web3) {
@@ -24,10 +29,10 @@ class NodeFactory {
             }
             else {
                 if (this.clientName.toLowerCase() === "infura") {
-                    return new infura_1.Infura(this.web3);
+                    return new infura_1.Infura(this.web3, this.networkType);
                 }
                 else if (this.clientName.toLowerCase() === "alchemy") {
-                    return new alchemy_1.Alchemy(this.web3);
+                    return new alchemy_1.Alchemy(this.web3, this.networkType);
                 }
                 else if (this.clientName.toLowerCase() === "ankar") {
                 }

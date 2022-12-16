@@ -44,7 +44,7 @@ dotEnv.config();
           console.log("Total address: ", txAddress?.length, ' __Addresses List >>', txAddress);
           
           const watcherTimer = 15000; // time in seconds
-          const nodeProvider = new NodeFactory(web3, 'Infura', 'testnet');
+          const nodeProvider = new NodeFactory(web3, 'Alchemy', 'testnet');
           const providerConnection: any = nodeProvider.createClient()?.clientConnection();
           const {web3http, web3ws} = providerConnection;
           const txWatcher = new TxWatcher(web3http, web3ws, txAddress, addressDetail, 'subscription');

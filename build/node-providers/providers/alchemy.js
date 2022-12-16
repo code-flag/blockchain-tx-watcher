@@ -7,13 +7,29 @@ exports.Alchemy = void 0;
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
 const ALCHEMY_API_KEY = process.env.ALCHEMY_API_KEY;
+const ALCHEMY_TESTNET_API_KEY = process.env.ALCHEMY_TESTNET_API_KEY;
 class Alchemy {
-    constructor(web3) {
+    /**
+     * Configure node network connection
+     * @param web3 - web3 instance
+     * @param netType - type of network
+     * - mainnet
+     * - testnet
+     */
+    constructor(web3, netType) {
         this.providerName = 'ALCHEMY';
-        this.httpUrl = "http://eth-mainnet.g.alchemy.com/v2/" + ALCHEMY_API_KEY;
-        this.wsUrl = "wss://eth-mainnet.g.alchemy.com/v2/" + ALCHEMY_API_KEY;
-        this.web3http = new web3(new web3.providers.HttpProvider(this.httpUrl));
-        this.web3ws = new web3(new web3.providers.WebsocketProvider(this.wsUrl));
+        this.httpUrl = "https://eth-goerli.g.alchemy.com/v2/" + ALCHEMY_TESTNET_API_KEY;
+        this.wsUrl = "wss://eth-goerli.g.alchemy.com/v2/" + ALCHEMY_API_KEY;
+        this.mainHttpUrl = "http://eth-mainnet.g.alchemy.com/v2/" + ALCHEMY_API_KEY;
+        this.mainWsUrl = "wss://eth-mainnet.g.alchemy.com/v2/" + ALCHEMY_API_KEY;
+        if (netType === 'mainnet') {
+            this.web3http = new web3(new web3.providers.HttpProvider(this.mainHttpUrl));
+            this.web3ws = new web3(new web3.providers.WebsocketProvider(this.mainWsUrl));
+        }
+        if (netType === 'testnet') {
+            this.web3http = new web3(new web3.providers.HttpProvider(this.httpUrl));
+            this.web3ws = new web3(new web3.providers.WebsocketProvider(this.wsUrl));
+        }
     }
     /**
      * Return node provider connection instance to http polling and web socket subscription
@@ -22,7 +38,7 @@ class Alchemy {
     clientConnection() {
         return {
             web3http: this.web3http,
-            web3: this.web3ws
+            web3ws: this.web3ws
         };
     }
 }

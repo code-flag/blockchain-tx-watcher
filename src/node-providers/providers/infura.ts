@@ -2,13 +2,14 @@ import { IProvider } from "../types";
 import dotEnv from "dotenv";
 dotEnv.config();
 const INFURA_API_KEY = process.env.INFURA_API_KEY;
+const INFURA_TESTNET_API_KEY = process.env.INFURA_TESTNET_API_KEY;
 
 export class Infura implements IProvider {
     providerName = 'Infura';
     web3ws: any;
     web3http: any;
-    httpUrl: string = "https://goerli.infura.io/v3/" + INFURA_API_KEY;
-    wsUrl: string = "wss://goerli.infura.io/ws/v3/" + INFURA_API_KEY;
+    httpUrl: string = "https://goerli.infura.io/v3/" + INFURA_TESTNET_API_KEY;
+    wsUrl: string = "wss://goerli.infura.io/ws/v3/" + INFURA_TESTNET_API_KEY;
     mainHttpUrl: string = "https://mainnet.infura.io/v3/" + INFURA_API_KEY;
     mainWsUrl: string = "wss://mainnet.infura.io/ws/v3/" + INFURA_API_KEY;
 

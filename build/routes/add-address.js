@@ -31,11 +31,11 @@ exports.setWatcherForAddAddressRoute = setWatcherForAddAddressRoute;
 const resetWatcher = () => {
     txWatcher.addressDetail = addressDetail;
     txWatcher.account = address;
-    txWatcher.watch(watcherTimer);
+    txWatcher.watch(watcherTimer, "alchemy_pendingTransactions"); // use this for alchemy network
+    // txWatcher.watch(watcherTimer); // use this for infura network
 };
 exports.router.post("/", (req, res) => {
     var _a;
-    console.log('get route address', address);
     if (address && !(address === null || address === void 0 ? void 0 : address.includes(req.body.address))) {
         if (req.body.address && typeof req.body.address === 'string' &&
             req.body.allocation_id &&
@@ -60,6 +60,7 @@ exports.router.post("/", (req, res) => {
                 };
                 // rest watcher
                 resetWatcher();
+                console.log("New Address added. Total address: ", address === null || address === void 0 ? void 0 : address.length, ' __Addresses List >>', address);
                 // send response back
                 res
                     .status(200)

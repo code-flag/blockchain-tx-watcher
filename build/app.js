@@ -41,13 +41,14 @@ schema_1.TransactionDb.find()
             };
         }
     });
-    console.log('addresses >>', txAddress);
+    console.log("Total address: ", txAddress === null || txAddress === void 0 ? void 0 : txAddress.length, ' __Addresses List >>', txAddress);
     const watcherTimer = 15000; // time in seconds
-    const nodeProvider = new provider_1.NodeFactory(web3_1.default, 'Infura');
+    const nodeProvider = new provider_1.NodeFactory(web3_1.default, 'Alchemy', 'testnet');
     const providerConnection = (_a = nodeProvider.createClient()) === null || _a === void 0 ? void 0 : _a.clientConnection();
     const { web3http, web3ws } = providerConnection;
     const txWatcher = new transaction_watcher_1.TxWatcher(web3http, web3ws, txAddress, addressDetail, 'subscription');
-    txWatcher.watch(watcherTimer);
+    txWatcher.watch(watcherTimer); //use this for alchemy network
+    // txWatcher.watch(watcherTimer); // use this for infura network
     /** this method is added to help reset watcher address anytime a new address is added */
     (0, add_address_1.setWatcherForAddAddressRoute)(txAddress, addressDetail, txWatcher, watcherTimer);
 });

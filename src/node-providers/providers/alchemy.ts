@@ -2,13 +2,14 @@ import { IProvider } from "../types";
 import dotEnv from "dotenv";
 dotEnv.config();
 const ALCHEMY_API_KEY = process.env.ALCHEMY_API_KEY;
+const ALCHEMY_TESTNET_API_KEY = process.env.ALCHEMY_TESTNET_API_KEY;
 
 export class Alchemy implements IProvider {
     providerName = 'ALCHEMY';
     web3ws: any;
     web3http: any;
-    httpUrl: string = "http://eth-mainnet.g.alchemy.com/v2/" + ALCHEMY_API_KEY;
-    wsUrl: string = "wss://eth-mainnet.g.alchemy.com/v2/" + ALCHEMY_API_KEY;
+    httpUrl: string = "https://eth-goerli.g.alchemy.com/v2/" + ALCHEMY_TESTNET_API_KEY;
+    wsUrl: string = "wss://eth-goerli.g.alchemy.com/v2/" + ALCHEMY_API_KEY;
     mainHttpUrl: string = "http://eth-mainnet.g.alchemy.com/v2/" + ALCHEMY_API_KEY;
     mainWsUrl: string = "wss://eth-mainnet.g.alchemy.com/v2/" + ALCHEMY_API_KEY;
 
@@ -39,7 +40,7 @@ export class Alchemy implements IProvider {
     clientConnection() {
         return {
             web3http: this.web3http,
-            web3: this.web3ws
+            web3ws: this.web3ws
         }
     }
 }
